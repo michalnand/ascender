@@ -1,0 +1,91 @@
+#include "motor_controll.h"
+
+#include <motor.h>
+#include <encoder.h>
+#include <config.h>
+
+#define MOTOR_CONTROLL_MAX_SPEED  ((float)4000.0)
+
+MotorControll motor_controll;
+
+MotorControll::MotorControll()
+{
+
+}
+
+MotorControll::~MotorControll()
+{
+
+}
+
+
+void MotorControll::init()
+{
+  ml.encoder_now = encoder.get_left();
+  mr.encoder_now = encoder.get_right();
+  ml.encoder_prev = ml.encoder_now;
+  mr.encoder_prev = mr.encoder_now;
+
+  mr.speed = 0;
+  ml.speed = 0;
+
+  mr.u = 0.0;
+  ml.u = 0.0;
+
+  dt = config.motor_config.dt;
+
+  pid_left.init(  config.motor_config.left_kp/1000.0,
+                  config.motor_config.left_ki/1000.0,
+                  config.motor_config.left_kd/1000.0,
+                  config.motor_config.left_aw/1000.0);
+
+  pid_right.init( config.motor_config.right_kp/1000.0,
+                  config.motor_config.right_ki/1000.0,
+                  config.motor_config.right_kd/1000.0,
+                  config.motor_config.right_aw/1000.0);
+}
+
+void MotorControll::main()
+{
+  float kf = 0.1;
+
+  ml.encoder_prev = ml.encoder_now;
+  mr.encoder_prev = mr.encoder_now;
+  ml.encoder_now = encoder.get_left();
+  mr.encoder_now = encoder.get_right();
+
+  ml.speed = (1.0 - kf)*ml.speed + kf*(ml.encoder_now - ml.encoder_prev)/(dt*0.001*MOTOR_CONTROLL_MAX_SPEED);
+  mr.speed = (1.0 - kf)*mr.speed + kf*(mr.encoder_now - mr.encoder_prev)/(dt*0.001*MOTOR_CONTROLL_MAX_SPEED);
+
+
+  ml.u = pid_left.process(left_speed - ml.speed, ml.speed);
+  mr.u = pid_right.process(right_speed - mr.speed, mr.speed);
+
+
+  motor.run(MOTOR_SPEED_MAX*ml.u, MOTOR_SPEED_MAX*mr.u);
+}
+
+void MotorControll::off()
+{
+  motor.run(0, 0);
+}
+
+float MotorControll::get_left_speed()
+{
+  return ml.speed;
+}
+
+float MotorControll::get_right_speed()
+{
+  return mr.speed;
+}
+
+float MotorControll::get_left_u()
+{
+  return ml.u;
+}
+
+float MotorControll::get_right_u()
+{
+  return mr.u;
+}

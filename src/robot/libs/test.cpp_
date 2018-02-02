@@ -1,0 +1,123 @@
+#include "test.h"
+
+#include <kodama.h>
+#include <libs.h>
+#include <config.h>
+
+void IMU_test()
+{
+  imu.init(&i2c);
+  TGpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
+
+  while (1)
+  {
+    led = 1;
+    imu.read();
+    terminal << imu.angular_rate.x << " " << imu.angular_rate.y << " " << imu.angular_rate.z << "\n";
+    timer.delay_ms(10);
+
+    led = 0;
+
+    timer.delay_ms(100);
+  }
+}
+
+void distance_sensor_test()
+{
+  distance_sensor.init();
+  TGpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
+
+  while (1)
+  {
+
+    led = 1;
+    distance_sensor.read();
+    terminal << distance_sensor.result.front << " ";
+    terminal << distance_sensor.result.left << " ";
+    terminal << distance_sensor.result.right << "\n";
+    led = 0;
+
+    timer.delay_ms(10);
+  }
+}
+
+
+void line_sensor_test()
+{
+  line_sensor.init();
+  TGpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
+
+  while (1)
+  {
+
+    led = 1;
+    line_sensor.read();
+    terminal << line_sensor.result.on_line << " ";
+    terminal << line_sensor.result.left_line_position << " ";
+    terminal << line_sensor.result.right_line_position << " : ";
+
+    for (unsigned int i = 0; i < LINE_SENSOR_COUNT; i++)
+      terminal << line_sensor.adc_result[i] << " ";
+
+    terminal << "\n";
+    led = 0;
+
+    timer.delay_ms(4);
+  }
+}
+
+
+void encoder_test()
+{
+  TGpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
+
+  while (1)
+  {
+    led = 1;
+    terminal <<   encoder.get_left() << " ";
+    terminal <<   encoder.get_right() << " ";
+    terminal <<   encoder.get_distance() << "\n";
+
+    led = 0;
+
+    timer.delay_ms(100);
+  }
+  encoder.get_left();
+}
+
+void motor_test()
+{
+  motor_controll.init();
+
+  float speed = 0.0;
+  float step = 0.002;
+
+  while (speed < 1.0)
+  {
+    motor_controll.left_speed = speed;
+    motor_controll.right_speed = speed;
+    speed+= step;
+
+    motor_controll.main();
+
+    timer.delay_ms(5);
+  }
+
+  while (speed > 0.0)
+  {
+    motor_controll.left_speed = speed;
+    motor_controll.right_speed = speed;
+    speed-= step;
+
+    motor_controll.main();
+
+    timer.delay_ms(5);
+  }
+
+  while (1)
+  {
+    motor_controll.main();
+    timer.delay_ms(5);
+  }
+
+}

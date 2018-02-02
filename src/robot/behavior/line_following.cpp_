@@ -1,0 +1,31 @@
+#include "line_following.h"
+
+LineFollowing::LineFollowing(BEngine &engine, bool precall_)
+        :BEInterface(engine, precall_)
+{
+  turn_pid.init(0.4, 0.0, 2.7, 100.0);
+  ticker.set_interval(config.line_sensor_config.dt);
+}
+
+LineFollowing::~LineFollowing()
+{ 
+
+}
+
+bool LineFollowing::condition()
+{
+  return ticker.is_time();
+}
+
+int LineFollowing::action()
+{
+  float line_position = math.constrain(line_sensor.result.left_line_position/250.0, -1.0, 1.0);
+
+  float speed = 0.3;
+  float turn = turn_pid.process(0.0 - line_position);
+
+  motor_controll.left_speed = speed + turn;;
+  motor_controll.right_speed = speed - turn;;
+  motor_controll.main();
+  return 0;
+}

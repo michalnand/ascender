@@ -1,0 +1,12 @@
+#ifndef _TEST_H_
+#define _TEST_H_
+
+#include <kodama.h>
+
+void IMU_test();
+void distance_sensor_test();
+void line_sensor_test();
+void encoder_test();
+void motor_test();
+
+#endif

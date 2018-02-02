@@ -1,0 +1,47 @@
+#ifndef _MOTOR_CONTROLL_H_
+#define _MOTOR_CONTROLL_H_
+
+#include <kodama.h>
+#include <motor.h>
+
+struct sMotorControll
+{
+  int encoder_now, encoder_prev;
+  float speed, u;
+};
+
+class MotorControll
+{
+  private:
+    struct sMotorControll mr, ml;
+
+    class PID pid_left, pid_right;
+
+
+    float dt;
+
+    class CMotor motor;
+
+  public:
+    float left_speed, right_speed;
+
+  public:
+    MotorControll();
+    ~MotorControll();
+
+    void init();
+
+    void main();
+
+    void off();
+
+    float get_left_speed();
+    float get_right_speed();
+
+    float get_left_u();
+    float get_right_u();
+};
+
+extern MotorControll motor_controll;
+
+#endif
