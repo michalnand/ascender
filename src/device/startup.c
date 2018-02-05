@@ -326,6 +326,7 @@ void Reset_Handler(void)
     static_init();
 
     SystemInit();
+    core_init();
 
     main();
 }

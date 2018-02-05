@@ -53,7 +53,7 @@ class BlinkThread : public Thread
         led = 0;
 
       cnt++;
- 
+
       imu.read();
 //      sht.read();
       terminal << " " << imu.angular_rate.x << " " << imu.angular_rate.y << " " << imu.angular_rate.z << " ";
@@ -61,11 +61,10 @@ class BlinkThread : public Thread
   //    terminal << " " << sht.temperature << " " << sht.humidity << "\n";
 
     }
-};
+}; 
 
 int main()
 {
-  core_init();
   kodama_init();
 
   terminal.printf("starting threads\n");

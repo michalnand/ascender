@@ -27,6 +27,6 @@
 #define I2C_PORT      TGPIOD
 #define I2C_SDA_PIN   1
 #define I2C_SCL_PIN   2
-#define I2C_SPEED     20    //loops delay for i2c -> higher number, slower bus
+#define I2C_SPEED     200    //loops delay for i2c -> higher number, slower bus
 
 #endif
