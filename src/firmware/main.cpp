@@ -20,14 +20,14 @@ int main()
     key.read();
     bl.set_mode(BL_MODE_FLASHING_FAST);
 
-
-    drivers.test_encoder_sensor();
+/*
+//    drivers.test_encoder_sensor();
 
     Motor motor;
     motor.init();
 
 
-/*
+
     motor.run_left(30);
     timer.delay_ms(200);
     motor.run_left(0);
