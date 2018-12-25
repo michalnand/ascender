@@ -123,7 +123,7 @@ void Drivers::test_imu_sensor(int count)
   }
 }
 
-/*
+
 void Drivers::test_line_sensor(int count)
 {
   terminal << "\ntest_line_sensor\n";
@@ -157,6 +157,7 @@ void Drivers::test_line_sensor(int count)
   line_sensor.off();
 }
 
+
 void Drivers::test_distance_sensor(int count)
 {
   terminal << "\test_distance_sensor\n";
@@ -188,7 +189,7 @@ void Drivers::test_distance_sensor(int count)
   }
 }
 
-
+/*
 void Drivers::test_encoder_sensor(int count)
 {
   terminal << "\ntest_encoder_sensor\n";

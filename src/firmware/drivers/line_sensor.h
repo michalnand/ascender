@@ -29,6 +29,8 @@ class LineSensor: public Thread
     bool m_ready;
 
   public:
+    Array<unsigned int, LINE_SENSOR_COUNT> adc_channel;
+
     Array<int, LINE_SENSOR_COUNT> weights;
 
     Array<int, LINE_SENSOR_COUNT> adc_calibration;
@@ -37,6 +39,7 @@ class LineSensor: public Thread
     Array<int, LINE_SENSOR_COUNT> adc_result;
 
   private:
+      /*
     //line sensors
     Gpio<TGPIOA, 1, GPIO_MODE_AN> sensor_in_0;
     Gpio<TGPIOA, 2, GPIO_MODE_AN> sensor_in_1;
@@ -46,7 +49,7 @@ class LineSensor: public Thread
     Gpio<TGPIOA, 7, GPIO_MODE_AN> sensor_in_5;
     Gpio<TGPIOC, 4, GPIO_MODE_AN> sensor_in_6;
     Gpio<TGPIOC, 5, GPIO_MODE_AN> sensor_in_7;
-
+    */
 
   public:
     sLineSensor result;

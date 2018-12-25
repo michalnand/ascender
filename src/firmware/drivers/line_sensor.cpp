@@ -26,14 +26,24 @@ int LineSensor::init()
 
   timer.delay_ms(100);
 
+  adc_channel[0] = ADC_CHANNEL_1;
+  adc_channel[1] = ADC_CHANNEL_2;
+  adc_channel[2] = ADC_CHANNEL_3;
+  adc_channel[3] = ADC_CHANNEL_4;
+  adc_channel[4] = ADC_CHANNEL_6;
+  adc_channel[5] = ADC_CHANNEL_7;
+  adc_channel[6] = ADC_CHANNEL_14;
+  adc_channel[7] = ADC_CHANNEL_15; 
+
+
   for (unsigned int i = 0; i < adc_calibration.size(); i++)
-    adc_calibration[i] = adc.read(i);
+    adc_calibration[i] = adc.read(adc_channel[i]);
 
   sensor_led = 1;
   timer.delay_ms(100);
 
   for (unsigned int i = 0; i < adc_calibration_k.size(); i++)
-    adc_calibration_k[i] =  adc.read(i) - adc_calibration[i];
+    adc_calibration_k[i] =  adc.read(adc_channel[i]) - adc_calibration[i];
 
 
   for (unsigned int i = 0; i < adc_result.size(); i++)
@@ -94,7 +104,7 @@ void LineSensor::main()
 {
   for (unsigned int i = 0; i < LINE_SENSOR_COUNT; i++)
   {
-    adc_result[i] = 1000-((adc.read(i) - adc_calibration[i])*1000)/adc_calibration_k[i];
+    adc_result[i] = 1000-((adc.read(adc_channel[i]) - adc_calibration[i])*1000)/adc_calibration_k[i];
     if (adc_result[i] < 0)
       adc_result[i] = 0;
   }

@@ -30,12 +30,11 @@ class Drivers
 
         int init();
 
-
         void test_imu_sensor(int count = -1);
-
-        /*
         void test_line_sensor(int count = -1);
         void test_distance_sensor(int count = -1);
+
+        /*
         void test_encoder_sensor(int count = -1);
 
         void test_motor_speed_feedback();
