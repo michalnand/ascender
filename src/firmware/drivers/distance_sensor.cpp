@@ -5,7 +5,7 @@
 
 DistanceSensor::DistanceSensor()
 {
-  front_ir_led = 0;
+
 }
 
 DistanceSensor::~DistanceSensor()

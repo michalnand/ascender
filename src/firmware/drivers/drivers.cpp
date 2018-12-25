@@ -4,14 +4,14 @@ Drivers drivers;
 
 Terminal                  terminal;
 Timer                     timer;
-TI2C<TGPIOD, 1, 2, 200>   i2c;
+TI2C<TGPIOD, 1, 2, 20>    i2c;
 IMU                       imu_sensor;
 ADCDriver                 adc;
 LineSensor                line_sensor;
 DistanceSensor            distance_sensor;
+EncoderSensor             encoder_sensor;
 
 /*
-EncoderSensor             encoder_sensor;
 MotorControll             motor_controll;
 */
 Key                       key;
@@ -51,6 +51,7 @@ int Drivers::init()
   imu_sensor.init(i2c);
   terminal << "imu init done with " << imu_sensor.present() << "\n";
 
+
   adc.init();
   terminal << "adc init done\n";
 
@@ -60,10 +61,10 @@ int Drivers::init()
   distance_sensor.init();
   terminal << "distance sensor init done\n";
 
-/*
   encoder_sensor.init();
   terminal << "encoder sensor init done\n";
 
+/*
   motor_controll.init();
   terminal << "motor controll init done\n";
 */
@@ -189,7 +190,7 @@ void Drivers::test_distance_sensor(int count)
   }
 }
 
-/*
+
 void Drivers::test_encoder_sensor(int count)
 {
   terminal << "\ntest_encoder_sensor\n";
@@ -216,7 +217,7 @@ void Drivers::test_encoder_sensor(int count)
   }
 }
 
-
+/*
 void Drivers::test_motor_speed_feedback()
 {
   terminal << "\ntest_motor_speed_feedback\n";

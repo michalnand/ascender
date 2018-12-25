@@ -1,93 +1,93 @@
 #include <clock.h>
 
 
-
-
-void core_SystemClock_Config_216(void)
+void SetSysClock216(void)
 {
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-  HAL_StatusTypeDef ret = HAL_OK;
+  RCC_HSEConfig(RCC_HSE_ON);
 
-  /* Enable HSE Oscillator and activate PLL with HSE as source */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 216*2;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 9;
-
-  ret = HAL_RCC_OscConfig(&RCC_OscInitStruct);
-  if(ret != HAL_OK)
+  if ( RCC_WaitForHSEStartUp() != SUCCESS )
   {
-    while(1) { ; }
+    while(1);
   }
+
+  RCC_PLLConfig(RCC_PLLSource_HSE, 8, 432, 2, 9);
+  RCC_PLLCmd(ENABLE);
+
+  while (RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET);
 
   /* Activate the OverDrive to reach the 216 MHz Frequency */
-  ret = HAL_PWREx_EnableOverDrive();
-  if(ret != HAL_OK)
-  {
-    while(1) { ; }
-  }
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
-  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  PWR_OverDriveCmd(ENABLE);
 
-  ret = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7);
-  if(ret != HAL_OK)
-  {
-    while(1) { ; }
-  }
+  while(PWR_GetFlagStatus(PWR_FLAG_ODRDY) == RESET );
+
+  while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET);
+
+  PWR_OverDriveSWCmd(ENABLE);
+
+  while(PWR_GetFlagStatus(PWR_FLAG_ODSWRDY) == RESET );
+
+  FLASH_SetLatency(FLASH_Latency_7);
+  RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+
+  RCC_HCLKConfig(RCC_SYSCLK_Div1);
+  RCC_PCLK1Config(RCC_HCLK_Div4);
+  RCC_PCLK2Config(RCC_HCLK_Div2);
+
+  SystemCoreClockUpdate();
+}
+
+void core_SystemClock_Config_216()
+{
+    SystemInit();
+    SetSysClock216();
+    SystemCoreClockUpdate();
 }
 
 
 
 
-void core_SystemClock_Config_312(void)
+void SetSysClock312(void)
 {
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-  HAL_StatusTypeDef ret = HAL_OK;
+  RCC_HSEConfig(RCC_HSE_ON);
 
-  /* Enable HSE Oscillator and activate PLL with HSE as source */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 312;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 13;
-
-  ret = HAL_RCC_OscConfig(&RCC_OscInitStruct);
-  if(ret != HAL_OK)
+  if ( RCC_WaitForHSEStartUp() != SUCCESS )
   {
-    while(1) { ; }
+    while(1);
   }
 
-  /* Activate the OverDrive to reach the 216 MHz Frequency */
-  ret = HAL_PWREx_EnableOverDrive();
-  if(ret != HAL_OK)
-  {
-    while(1) { ; }
-  }
+  RCC_PLLConfig(RCC_PLLSource_HSE, 4, 312, 2, 13);
+  RCC_PLLCmd(ENABLE);
 
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
-  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  while (RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET);
 
-  ret = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7);
-  if(ret != HAL_OK)
-  {
-    while(1) { ; }
-  }
+  /* Activate the OverDrive to reach the 312 MHz Frequency */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+
+  PWR_OverDriveCmd(ENABLE);
+
+  while(PWR_GetFlagStatus(PWR_FLAG_ODRDY) == RESET );
+
+  while(RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET);
+
+  PWR_OverDriveSWCmd(ENABLE);
+
+  while(PWR_GetFlagStatus(PWR_FLAG_ODSWRDY) == RESET );
+
+  FLASH_SetLatency(FLASH_Latency_7);
+  RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+
+  RCC_HCLKConfig(RCC_SYSCLK_Div1);
+  RCC_PCLK1Config(RCC_HCLK_Div4);
+  RCC_PCLK2Config(RCC_HCLK_Div2);
+
+  SystemCoreClockUpdate();
+}
+
+void core_SystemClock_Config_312()
+{
+    SystemInit();
+    SetSysClock216();
+    SystemCoreClockUpdate();
 }

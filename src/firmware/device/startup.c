@@ -1,6 +1,5 @@
 #include <stm32f7xx.h>
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -323,7 +322,7 @@ void Reset_Handler(void)
      // __libc_init_array();
 
      SystemInit();
-     
+
      main();
 }
 

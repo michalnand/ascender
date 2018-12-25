@@ -3,6 +3,7 @@
 
 #include <thread.h>
 
+
 class Timer
 {
   private:
@@ -43,7 +44,6 @@ class Timer
     unsigned int test_and_clear(unsigned char timer_id);
 
     unsigned long int get_time();
-
     void delay_ms(unsigned int ms_time);
 
     void delay_loops(unsigned long int loops);
@@ -52,7 +52,7 @@ class Timer
     unsigned long int elapsed_time();
 
     private:
-        void timer_2_init(unsigned int frq_hz);
+        void timer_2_init(unsigned int frequency);
 };
 
 

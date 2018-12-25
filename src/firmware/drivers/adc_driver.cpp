@@ -21,6 +21,7 @@ void ADCDriver::init()
 
 int ADCDriver::read(unsigned int channel)
 {
+    /*
     adcChannel.Channel = channel;
     HAL_ADC_ConfigChannel(&AdcHandle, &adcChannel);
 
@@ -32,44 +33,37 @@ int ADCDriver::read(unsigned int channel)
     }
 
     return ADC1->DR;
+    */
+
+    ADC_RegularChannelConfig(ADC1, channel, 1, ADC_SampleTime_15Cycles);
+    ADC_SoftwareStartConv(ADC1);
+
+    while (!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC))
+    { 
+
+    }
+
+    return ADC_GetConversionValue(ADC1);
 }
 
 void ADCDriver::adc_init()
 {
-    __ADC1_CLK_ENABLE();
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 
-    //HAL_NVIC_SetPriority(ADC_IRQn, 0, 0);
-    //HAL_NVIC_EnableIRQ(ADC_IRQn);
+    ADC_InitTypeDef ADC_InitStruct;
+    ADC_InitStruct.ADC_ScanConvMode =   DISABLE;
+    ADC_InitStruct.ADC_Resolution   =   ADC_Resolution_12b;
+    ADC_InitStruct.ADC_ContinuousConvMode   =   DISABLE;
+    ADC_InitStruct.ADC_ExternalTrigConv     =   ADC_ExternalTrigConv_T1_CC1;
+    ADC_InitStruct.ADC_ExternalTrigConvEdge =   ADC_ExternalTrigConvEdge_None;
+    ADC_InitStruct.ADC_DataAlign            =   ADC_DataAlign_Right;
+    ADC_InitStruct.ADC_NbrOfConversion      =   1;
 
-    AdcHandle.Instance = ADC1;
+    ADC_Init(ADC1, &ADC_InitStruct);
+    ADC_Cmd(ADC1, ENABLE);
 
-    AdcHandle.Init.ClockPrescaler = ADC_CLOCKPRESCALER_PCLK_DIV2;
-    AdcHandle.Init.Resolution     = ADC_RESOLUTION_12B;
-    AdcHandle.Init.ScanConvMode   = DISABLE;
-    AdcHandle.Init.ContinuousConvMode     = ENABLE;
-    AdcHandle.Init.DiscontinuousConvMode  = DISABLE;
-    AdcHandle.Init.NbrOfDiscConversion    = 0;
-    AdcHandle.Init.ExternalTrigConvEdge   = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    AdcHandle.Init.ExternalTrigConv       = ADC_EXTERNALTRIGCONV_T1_CC1;
-    AdcHandle.Init.DataAlign              = ADC_DATAALIGN_RIGHT;
-    AdcHandle.Init.NbrOfConversion        = 1;
-    AdcHandle.Init.DMAContinuousRequests  = DISABLE;
-    AdcHandle.Init.EOCSelection           = ENABLE;
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 1, ADC_SampleTime_15Cycles);
 
-    HAL_ADC_Init(&AdcHandle);
-
-    adcChannel.Channel = ADC_CHANNEL_1;
-    adcChannel.Rank = 1;
-    adcChannel.SamplingTime = ADC_SAMPLETIME_15CYCLES;
-    adcChannel.Offset = 0;
-
-    if (HAL_ADC_ConfigChannel(&AdcHandle, &adcChannel) != HAL_OK)
-    {
-        while (1)
-        {
-            __asm("nop");
-        }
-    }
 }
 
 void ADCDriver::gpio_init()
@@ -78,34 +72,47 @@ void ADCDriver::gpio_init()
                     RCC_AHB1ENR_GPIOBEN|
                     RCC_AHB1ENR_GPIOCEN;
 
-    GPIO_InitTypeDef gpioInit;
-    gpioInit.Mode = GPIO_MODE_ANALOG;
-    gpioInit.Pull = GPIO_NOPULL;
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AN;
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;
+    GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
-    gpioInit.Pin = GPIO_PIN_1;
-    HAL_GPIO_Init(GPIOA, &gpioInit);
-    gpioInit.Pin = GPIO_PIN_2;
-    HAL_GPIO_Init(GPIOA, &gpioInit);
-    gpioInit.Pin = GPIO_PIN_3;
-    HAL_GPIO_Init(GPIOA, &gpioInit);
-    gpioInit.Pin = GPIO_PIN_4;
-    HAL_GPIO_Init(GPIOA, &gpioInit);
-    gpioInit.Pin = GPIO_PIN_6;
-    HAL_GPIO_Init(GPIOA, &gpioInit);
-    gpioInit.Pin = GPIO_PIN_7;
-    HAL_GPIO_Init(GPIOA, &gpioInit);
-    gpioInit.Pin = GPIO_PIN_4;
-    HAL_GPIO_Init(GPIOC, &gpioInit);
-    gpioInit.Pin = GPIO_PIN_5;
-    HAL_GPIO_Init(GPIOC, &gpioInit);
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    gpioInit.Pin = GPIO_PIN_0;
-    HAL_GPIO_Init(GPIOA, &gpioInit);
-    gpioInit.Pin = GPIO_PIN_5;
-    HAL_GPIO_Init(GPIOA, &gpioInit);
-    gpioInit.Pin = GPIO_PIN_0;
-    HAL_GPIO_Init(GPIOB, &gpioInit);
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2;
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    gpioInit.Pin = GPIO_PIN_1;
-    HAL_GPIO_Init(GPIOB, &gpioInit);
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6;
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_7;
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
+    GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5;
+    GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+
+
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5;
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
+    GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;
+    GPIO_Init(GPIOB, &GPIO_InitStruct);
 }

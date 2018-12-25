@@ -11,9 +11,9 @@
 #include <adc_driver.h>
 #include <line_sensor.h>
 #include <distance_sensor.h>
+#include <encoder_sensor.h>
 
 /*
-#include <encoder_sensor.h>
 #include <motor_controll.h>
 */
 #include <key.h>
@@ -33,10 +33,9 @@ class Drivers
         void test_imu_sensor(int count = -1);
         void test_line_sensor(int count = -1);
         void test_distance_sensor(int count = -1);
-
-        /*
         void test_encoder_sensor(int count = -1);
 
+        /*
         void test_motor_speed_feedback();
         void test_motor_gyro_feedback();
 
@@ -48,14 +47,14 @@ extern Drivers drivers;
 
 extern Terminal                  terminal;
 extern Timer                     timer;
-extern TI2C<TGPIOD, 1, 2, 200>   i2c;
+extern TI2C<TGPIOD, 1, 2, 20>    i2c;
 extern IMU                       imu_sensor;
 extern ADCDriver                 adc;
 extern LineSensor                line_sensor;
 extern DistanceSensor            distance_sensor;
+extern EncoderSensor             encoder_sensor;
 
 /*
-extern EncoderSensor             encoder_sensor;
 extern MotorControll             motor_controll;
 */
 extern Key                       key;

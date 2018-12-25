@@ -26,14 +26,14 @@ int LineSensor::init()
 
   timer.delay_ms(100);
 
-  adc_channel[0] = ADC_CHANNEL_1;
-  adc_channel[1] = ADC_CHANNEL_2;
-  adc_channel[2] = ADC_CHANNEL_3;
-  adc_channel[3] = ADC_CHANNEL_4;
-  adc_channel[4] = ADC_CHANNEL_6;
-  adc_channel[5] = ADC_CHANNEL_7;
-  adc_channel[6] = ADC_CHANNEL_14;
-  adc_channel[7] = ADC_CHANNEL_15; 
+  adc_channel[0] = ADC_Channel_1;
+  adc_channel[1] = ADC_Channel_2;
+  adc_channel[2] = ADC_Channel_3;
+  adc_channel[3] = ADC_Channel_4;
+  adc_channel[4] = ADC_Channel_6;
+  adc_channel[5] = ADC_Channel_7;
+  adc_channel[6] = ADC_Channel_14;
+  adc_channel[7] = ADC_Channel_15; 
 
 
   for (unsigned int i = 0; i < adc_calibration.size(); i++)

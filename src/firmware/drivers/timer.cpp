@@ -14,8 +14,54 @@ struct sTimer
   bool main_loop_callback_enabled;
 };
 
+
+
 volatile unsigned long int g_time;
 volatile struct sTimer g_timers[TIMERS_COUNT];
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void TIM2_IRQHandler()
+{
+  if ((TIM2->SR&((uint16_t)0x0001)) != RESET)    //check TIME_IT_Update flag
+  {
+    TIM2->SR = (uint16_t)~((uint16_t)0x0001);    //clear flag
+
+    for (unsigned char i = 0; i < TIMERS_COUNT; i++)
+    {
+
+      if (g_timers[i].cnt)
+        g_timers[i].cnt--;
+      else
+      {
+        g_timers[i].cnt = g_timers[i].period;
+
+        if (g_timers[i].flag != 255)
+          g_timers[i].flag++;
+
+
+        if (g_timers[i].main_loop_callback_enabled == false)    //task executing in interrupt
+        {
+          if (g_timers[i].callback_function != nullptr)
+            g_timers[i].callback_function();
+
+          if (g_timers[i].callback_class != nullptr)
+            g_timers[i].callback_class->main();
+        }
+      }
+    }
+
+    g_time++;
+  }
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+
 
 Timer::Timer()
 {
@@ -32,12 +78,12 @@ void Timer::init()
 
   for (i = 0; i < TIMERS_COUNT; i++)
   {
-    g_timers[i].callback_function = nullptr;
-    g_timers[i].callback_class = nullptr;
+    g_timers[i].callback_function   = nullptr;
+    g_timers[i].callback_class      = nullptr;
 
-    g_timers[i].period = 1000;
-    g_timers[i].cnt = 0;
-    g_timers[i].flag = 0;
+    g_timers[i].period  = 1000;
+    g_timers[i].cnt     = 0;
+    g_timers[i].flag    = 0;
     g_timers[i].main_loop_callback_enabled = false;
   }
 
@@ -45,11 +91,9 @@ void Timer::init()
 
   stop_watch_init_value = 0;
 
-
   timer_2_init(1000);
 
   __enable_irq();
-
 }
 
 Timer::~Timer()
@@ -182,6 +226,9 @@ unsigned long int Timer::get_time()
   return tmp;
 }
 
+
+
+
 void Timer::delay_ms(unsigned int ms_time)
 {
   volatile unsigned long int time_stop = ms_time + get_time();
@@ -206,98 +253,55 @@ unsigned long int Timer::elapsed_time()
 }
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
+#include <gpio.h>
 
 
-void TIM2_IRQHandler()
+
+void Timer::timer_2_init(unsigned int frequency)
 {
-  if ((TIM2->SR&((uint16_t)0x0001)) != RESET)    //check TIME_IT_Update flag
-  {
-    TIM2->SR = (uint16_t)~((uint16_t)0x0001);    //clear flag
+    uint32_t clk_frq;
+    uint16_t prescaler, period;
+    uint32_t u_temp;
 
-    for (unsigned char i = 0; i < TIMERS_COUNT; i++)
-    {
+    float tmp, f_temp;
 
-      if (g_timers[i].cnt)
-        g_timers[i].cnt--;
-      else
-      {
-        g_timers[i].cnt = g_timers[i].period;
+    clk_frq = F_CPU/4; // HAL_RCC_GetPCLK1Freq();
 
-        if (g_timers[i].flag != 255)
-          g_timers[i].flag++;
+    if (frequency == 0)
+      frequency=1;
 
+    if (frequency > clk_frq)
+      frequency = clk_frq;
 
-        if (g_timers[i].main_loop_callback_enabled == false)    //task executing in interrupt
-        {
-          if (g_timers[i].callback_function != nullptr)
-            g_timers[i].callback_function();
+    tmp = (float)(clk_frq<<1)/(float)(frequency);
 
-          if (g_timers[i].callback_class != nullptr)
-            g_timers[i].callback_class->main();
-        }
-      }
-    }
+    u_temp=(uint32_t)(tmp);
+    prescaler=(u_temp>>16);
 
-    g_time++;
-  }
-}
-
-#ifdef __cplusplus
-}
-#endif
+    f_temp=(float)(tmp)/(float)(prescaler+1);
+    period=(uint16_t)(f_temp-1);
 
 
 
+    TIM_TimeBaseInitTypeDef tim_init_struct;
+    /* Enable timer 2, using the Reset and Clock Control register */
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
+    // Get the clock frequencies
+    RCC_ClocksTypeDef RCC_Clocks;
+    RCC_GetClocksFreq(&RCC_Clocks);
 
+    tim_init_struct.TIM_Prescaler = prescaler;
+    tim_init_struct.TIM_CounterMode = TIM_CounterMode_Up;
+    tim_init_struct.TIM_Period = period;
+    tim_init_struct.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_TimeBaseInit(TIM2, &tim_init_struct);
+    TIM_Cmd(TIM2, ENABLE); // start counting by enabling CEN in CR1 */
+    TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE); // enable so we can track each period
 
-void Timer::timer_2_init(unsigned int frq_hz)
-{
-  uint32_t clk_frq;
-  uint16_t prescaler, period;
-  uint32_t u_temp;
+    Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
 
-  float tmp, f_temp;
-
-  clk_frq = HAL_RCC_GetPCLK1Freq();
-
-
-  if (frq_hz == 0)
-    frq_hz=1;
-
-  if (frq_hz > clk_frq)
-    frq_hz = clk_frq;
-
-  tmp = (float)(clk_frq<<1)/(float)(frq_hz);
-
-  u_temp=(uint32_t)(tmp);
-  prescaler=(u_temp>>16);
-
-  f_temp=(float)(tmp)/(float)(prescaler+1);
-  period=(uint16_t)(f_temp-1);
-
-
-
-  RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;  //timer 2 clock enable
-
-
-  TIM_HandleTypeDef TIM2_InitStruct;
-
-  TIM2_InitStruct.Instance = TIM2;
-  TIM2_InitStruct.Init.Period            = period;
-  TIM2_InitStruct.Init.Prescaler         = prescaler;
-  TIM2_InitStruct.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-  TIM2_InitStruct.Init.CounterMode       = TIM_COUNTERMODE_UP;
-  TIM2_InitStruct.Init.RepetitionCounter = 0;
-  HAL_TIM_Base_Init(&TIM2_InitStruct);
-
-
-  HAL_NVIC_SetPriority(TIM2_IRQn, 3, 0);
-  HAL_NVIC_EnableIRQ(TIM2_IRQn);
-
-
-  HAL_TIM_Base_Start_IT(&TIM2_InitStruct);
+    NVIC_SetPriority(TIM2_IRQn, 1);
+    NVIC_EnableIRQ(TIM2_IRQn);
 }

@@ -2,8 +2,6 @@
 #define _CLOCK_H_
 
 #include <stm32f7xx.h>
-#include <stm32f7xx_hal.h>
-
 
 /**
   * @brief  System Clock Configuration
@@ -14,8 +12,8 @@
   *            AHB Prescaler                  = 1
   *            APB1 Prescaler                 = 4
   *            APB2 Prescaler                 = 2
-  *            HSE Frequency(Hz)              = 25000000
-  *            PLL_M                          = 25
+  *            HSE Frequency(Hz)              = 8000000
+  *            PLL_M                          = 8
   *            PLL_N                          = 432
   *            PLL_P                          = 2
   *            PLL_Q                          = 9
@@ -28,8 +26,6 @@
 void core_SystemClock_Config_216();
 
 
-
-
 /**
   * @brief  System Clock Configuration
   *         The system Clock is configured as follow :
@@ -39,7 +35,7 @@ void core_SystemClock_Config_216();
   *            AHB Prescaler                  = 1
   *            APB1 Prescaler                 = 4
   *            APB2 Prescaler                 = 2
-  *            HSE Frequency(Hz)              = 25000000
+  *            HSE Frequency(Hz)              = 8000000
   *            PLL_M                          = 4
   *            PLL_N                          = 312
   *            PLL_P                          = 2

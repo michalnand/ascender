@@ -35,7 +35,7 @@ class DistanceSensor: public Thread
     Gpio<TGPIOB, 0, GPIO_MODE_AN> sensor_in_1; //left as ADC input
     Gpio<TGPIOA, 0, GPIO_MODE_AN> sensor_in_2; //right as ADC input
     */
-    
+
     unsigned int state;
     int adc_res_on[DISTANCE_SENSOR_COUNT];
     int adc_res_off[DISTANCE_SENSOR_COUNT];

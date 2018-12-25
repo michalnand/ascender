@@ -2,21 +2,23 @@ CXX_SRCS+= $(shell find  -name '*.cpp')
 
 
 C_SRCS+= $(shell find  ./device/ -name '*.c')
-C_SRCS+= $(shell find  ./STM32F7xx_HAL_Driver/Src -name '*.c')
+C_SRCS+= $(shell find  ./STM32F7xx_StdPeriph_Driver/ -name '*.c')
 
 
 INC = -I .
 INC+= -I ./device/
 INC+= -I ./device/CMSIS/
-INC+= -I ./STM32F7xx_HAL_Driver/Inc/
-
+INC+= -I ./STM32F7xx_StdPeriph_Driver/inc/
+INC+= -I ./STM32F7xx_StdPeriph_Driver/
+INC+= -include ./STM32F7xx_StdPeriph_Driver/stm32f7xx_conf.h
+INC+= -include ./device/stm32f7xx.h
 
 INC_CPP+= -I .
 INC_CPP+= -I ./embedded_libs/
 INC_CPP+= -I ./embedded_libs/cnn/
 INC_CPP+= -I ./drivers/
 
-TARGET = -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp -fsingle-precision-constant -DSTM32F722xx
+TARGET = -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp -fsingle-precision-constant -DSTM32F746xx
 
 
 

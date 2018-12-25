@@ -2,7 +2,7 @@
 #define _GPIO_H_
 
 
-#include <stm32f7xx_hal_gpio.h>
+#include <stm32f7xx_conf.h>
 #include <embedded_libs.h>
 
 #define TGPIOA    ((unsigned char)0)

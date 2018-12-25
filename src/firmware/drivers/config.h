@@ -1,7 +1,8 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
-#define F_CPU               ((unsigned int)30000000)
+#define F_CPU               ((unsigned int)216000000)
+//#define F_CPU             ((unsigned int)312000000)
 #define TIMERS_COUNT        ((unsigned int)16)
 
 
@@ -19,7 +20,7 @@
 
 //encoders parameters
 #define PULSES_PER_ROTATION     ((int32_t)180)
-#define WHEEL_CIRCUMFERENCE     ((int32_t)88)
+#define WHEEL_CIRCUMFERENCE     ((int32_t)88/2)
 
 
 

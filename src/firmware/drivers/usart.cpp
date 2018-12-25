@@ -8,12 +8,8 @@
 
 //use usart1, on pins PA9 and PA10
 #define USART      USART1
-
 #define    USART_BAUD            115200
-#define    USART_TX_PORT         GPIOA
-#define    USART_TX_PIN          GPIO_PIN_9
-#define    USART_RX_PORT         GPIOA
-#define    USART_RX_PIN          GPIO_PIN_10
+
 
 Usart::Usart()
 {
@@ -23,39 +19,21 @@ Usart::Usart()
 
 void Usart::init(unsigned int baudrate)
 {
-    RCC->AHB1ENR|= RCC_AHB1ENR_GPIOAEN;
-    RCC->APB2ENR|= RCC_APB2ENR_USART1EN;
+    Gpio<TGPIOA, 9, GPIO_MODE_AF>  usart_tx_pin;
+    Gpio<TGPIOA, 10, GPIO_MODE_AF> usart_rx_pin;
 
-    GPIO_InitTypeDef gpio_init_structure;
+    usart_tx_pin.af_config(((uint8_t)0x07)); //AF7
+    usart_rx_pin.af_config(((uint8_t)0x07)); //AF7
 
-    // GPIO TX
-    gpio_init_structure.Pin = USART_TX_PIN;
-    gpio_init_structure.Mode = GPIO_MODE_AF_PP;
-    gpio_init_structure.Speed = GPIO_SPEED_FAST;
-    gpio_init_structure.Pull = GPIO_PULLUP;
-    gpio_init_structure.Alternate = GPIO_AF7_USART1;
-    HAL_GPIO_Init(USART_TX_PORT, &gpio_init_structure);
+    RCC->APB2ENR|= RCC_APB2ENR_USART1EN;  //USART1 clock enable
 
-    // GPIO RX
-    gpio_init_structure.Pin = USART_RX_PIN;
-    gpio_init_structure.Mode = GPIO_MODE_AF_PP;
-    gpio_init_structure.Alternate = GPIO_AF7_USART1;
-    HAL_GPIO_Init(USART_RX_PORT, &gpio_init_structure);
+    USART1->CR2 = 0;  //1stop bit
+    USART1->CR1 = USART_CR1_RE|USART_CR1_TE;  //8bit word, no parity, RX, TX enable
+    USART1->CR3 = 0;
 
+    USART1->BRR = F_CPU/(2*baudrate);
+    USART1->CR1 |= USART_CR1_UE;    //usart enable
 
-     UART_HandleTypeDef UartHandle1;
-     // UART init
-     UartHandle1.Instance = USART;
-     UartHandle1.Init.BaudRate     = baudrate;
-     UartHandle1.Init.WordLength   = UART_WORDLENGTH_8B;
-     UartHandle1.Init.StopBits     = UART_STOPBITS_1;
-     UartHandle1.Init.Parity       = UART_PARITY_NONE;
-     UartHandle1.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-     UartHandle1.Init.Mode         = UART_MODE_TX_RX;
-     UartHandle1.Init.OverSampling = UART_OVERSAMPLING_8;
-     UartHandle1.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
-     UartHandle1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-     HAL_UART_Init(&UartHandle1);
 }
 
 Usart::~Usart()
@@ -66,11 +44,11 @@ Usart::~Usart()
 
 void Usart::put_char(char c)
 {
- 
-  while( !(USART->ISR & USART_ISR_TXE) )
-		__asm("nop");
 
-  USART->TDR = c;
+    while (!USART_GetFlagStatus(USART1, USART_FLAG_TXE))
+    {
+    }
+    USART_SendData(USART1, c);
 }
 
 char Usart::get_char()
