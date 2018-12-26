@@ -311,7 +311,6 @@ void Reset_Handler(void)
      FPU->FPCCR|= ((1<<31)|(1<<30));                 //enable context saving
 
 
-
      void (**p)() = &__init_array_start;
 
      for (unsigned int i = 0; i < (&__init_array_end - &__init_array_start); i++)

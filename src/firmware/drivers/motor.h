@@ -12,9 +12,13 @@ class Motor
           Gpio<TGPIOD, 0, GPIO_MODE_OUT> motor_enable;
 
           Gpio<TGPIOE, 12, GPIO_MODE_OUT> pwm_a_left;
-          Gpio<TGPIOE, 13, GPIO_MODE_OUT> pwm_b_left;
+          Gpio<TGPIOE, 13, GPIO_MODE_AF> pwm_b_left;
           Gpio<TGPIOE, 10, GPIO_MODE_OUT> pwm_a_right;
-          Gpio<TGPIOE, 11, GPIO_MODE_OUT> pwm_b_right;
+          Gpio<TGPIOE, 11, GPIO_MODE_AF> pwm_b_right;
+
+        GPIO_InitTypeDef gpioStructure;
+        TIM_TimeBaseInitTypeDef timerInitStructure;
+        TIM_OCInitTypeDef outputChannelInit;
 
     public:
         Motor();

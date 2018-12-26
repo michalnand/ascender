@@ -10,10 +10,7 @@ ADCDriver                 adc;
 LineSensor                line_sensor;
 DistanceSensor            distance_sensor;
 EncoderSensor             encoder_sensor;
-
-/*
 MotorControll             motor_controll;
-*/
 Key                       key;
 
 
@@ -64,10 +61,9 @@ int Drivers::init()
   encoder_sensor.init();
   terminal << "encoder sensor init done\n";
 
-/*
+
   motor_controll.init();
   terminal << "motor controll init done\n";
-*/
 
   key.init();
   terminal << "key init done\n";
@@ -217,7 +213,7 @@ void Drivers::test_encoder_sensor(int count)
   }
 }
 
-/*
+
 void Drivers::test_motor_speed_feedback()
 {
   terminal << "\ntest_motor_speed_feedback\n";
@@ -251,4 +247,84 @@ void Drivers::test_motor_speed_feedback()
     }
   }
 }
-*/
+
+
+
+
+
+void Drivers::test_motor_gyro_feedback()
+{
+  terminal << "\ntest_motor_gyro_feedback\n";
+
+  PID pid(0.00004, 0.0, 0.0001, 1.0);
+
+  while (1)
+  {
+    if (imu_sensor.ready())
+    {
+      led = 1;
+
+      float angle = imu_sensor.angle.z;
+      float error = 0.0 - angle;
+
+      float turn = pid.process(error, angle);
+
+      motor_controll.set_left_speed(-turn);
+      motor_controll.set_right_speed(turn);
+
+      // terminal << "angle " << angle << "\n";
+
+      led = 0;
+    }
+  }
+}
+
+
+
+void Drivers::test_line_follower()
+{
+  terminal << "\ntest_line_follower\n";
+
+  PID steering_pid(0.4, 0.0, 1.3, 10.0);
+
+  float speed      = 0.0;
+  float speed_max  = 0.4;
+  float speed_rise = 0.001;
+ 
+
+
+  while (1)
+  {
+    if (line_sensor.ready())
+    {
+        //if (line_sensor.result.on_line)
+        if (true)
+        {
+            //compute line possition and of center error
+           float line_position = line_sensor.result.left_line_position*1.0/line_sensor.get_max();
+           float error         = 0.0 - line_position;
+
+           //compute steering using PID
+           float steering = steering_pid.process(error, line_position);
+
+           if (speed < speed_max)
+            speed+= speed_rise;
+
+           //compute outputs for motors
+           float speed_left  = steering  + speed;
+           float speed_right = -steering + speed;
+
+           //input into PID controllers for motors
+           motor_controll.set_left_speed(speed_left);
+           motor_controll.set_right_speed(speed_right);
+       }
+       else
+       {
+           motor_controll.set_left_speed(0);
+           motor_controll.set_right_speed(0);
+           steering_pid.reset();
+           speed = 0;
+       }
+    }
+  }
+}

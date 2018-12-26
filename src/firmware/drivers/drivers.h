@@ -12,10 +12,7 @@
 #include <line_sensor.h>
 #include <distance_sensor.h>
 #include <encoder_sensor.h>
-
-/*
 #include <motor_controll.h>
-*/
 #include <key.h>
 
 
@@ -35,12 +32,9 @@ class Drivers
         void test_distance_sensor(int count = -1);
         void test_encoder_sensor(int count = -1);
 
-        /*
         void test_motor_speed_feedback();
         void test_motor_gyro_feedback();
-
         void test_line_follower();
-        */
 };
 
 extern Drivers drivers;
@@ -53,10 +47,7 @@ extern ADCDriver                 adc;
 extern LineSensor                line_sensor;
 extern DistanceSensor            distance_sensor;
 extern EncoderSensor             encoder_sensor;
-
-/*
 extern MotorControll             motor_controll;
-*/
 extern Key                       key;
 
 

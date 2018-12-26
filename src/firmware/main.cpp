@@ -5,11 +5,10 @@
 
 #include <motor.h>
 
-
 int main()
 {
-    //core_SystemClock_Config_216();
-    core_SystemClock_Config_312();
+    core_SystemClock_Config_216();
+    //core_SystemClock_Config_312();
 
     drivers.init();
 
@@ -18,44 +17,43 @@ int main()
     bl.set_mode(BL_MODE_BREATH);
 
     key.read();
-    bl.set_mode(BL_MODE_FLASHING_FAST);
+    //bl.set_mode(BL_MODE_FLASHING_FAST);
 
 /*
-//    drivers.test_encoder_sensor();
-
     Motor motor;
     motor.init();
 
-
-
-    motor.run_left(30);
-    timer.delay_ms(200);
+    motor.run_left(100);
+    timer.delay_ms(800);
     motor.run_left(0);
-    timer.delay_ms(200);
+    timer.delay_ms(800);
 
 
-    motor.run_left(-30);
-    timer.delay_ms(200);
+    motor.run_left(-100);
+    timer.delay_ms(800);
     motor.run_left(0);
-    timer.delay_ms(200);
+    timer.delay_ms(800);
 
 
-
-    motor.run_right(30);
-    timer.delay_ms(200);
+    motor.run_right(100);
+    timer.delay_ms(800);
     motor.run_right(0);
-    timer.delay_ms(200);
+    timer.delay_ms(800);
 
 
-    motor.run_right(-30);
-    timer.delay_ms(200);
+    motor.run_right(-100);
+    timer.delay_ms(800);
     motor.run_right(0);
-    timer.delay_ms(200);
+    timer.delay_ms(800);
+
 */
-    while (1)
-    {
 
-    }
+    //drivers.test_motor_speed_feedback();
+    //drivers.test_motor_gyro_feedback();
+
+    drivers.test_line_follower(); 
+
+
 
     return 0;
 }

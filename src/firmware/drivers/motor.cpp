@@ -1,8 +1,10 @@
 #include <motor.h>
 #include <stm32f7xx_hal.h>
+#include <drivers.h>
 
-#define PWM_FREQUENCY   10000
-#define PWM_PERIOD      ((F_CPU/PWM_FREQUENCY) - 1)
+#define PWM_FREQUENCY       ((unsigned int)10000)
+#define PWM_PRESCALER       ((unsigned int)8)
+#define PWM_PERIOD          ((F_CPU/(PWM_FREQUENCY*PWM_PRESCALER*2)) - 1)
 
 Motor::Motor()
 {
@@ -16,147 +18,122 @@ Motor::~Motor()
 
 void Motor::init()
 {
+    terminal << "MOTOR PWM init\n";
+
+
+    terminal << "MOTOR GPIO init\n";
+
     motor_enable = 1;
 
-    pwm_a_left = 0;
-    pwm_b_left = 0;
+    pwm_a_left      = 0;
+    pwm_a_right     = 0;
 
-    pwm_a_right  = 0;
-    pwm_b_right  = 0;
+    pwm_b_left.set_af(1);
+    pwm_b_right.set_af(1);
 
 /*
-    TIM_MasterConfigTypeDef sMasterConfig;
-    TIM_OC_InitTypeDef sConfigOC;
+    //PWM on pins
+    //PE13 - TIM1_CH3, left motor
+    //PE11 - TIM1_CH2, right motor
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
 
-    TIM_HandleTypeDef htim1;
-
-    htim1.Instance = TIM1;
-    htim1.Init.Prescaler = 0;
-    htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim1.Init.Period = PWM_PERIOD;
-    htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV2;
-    HAL_TIM_PWM_Init(&htim1);
-
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-    sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-    HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig);
-
-    sConfigOC.OCMode = TIM_OCMODE_PWM1;
-    sConfigOC.OCIdleState = TIM_OCIDLESTATE_SET;
-    sConfigOC.Pulse = 650;
-    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-    sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
-
-    HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2);
-    HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3);
-    HAL_TIM_PWM_MspInit(&htim1);
-
-
-    unsigned int pwm = 20;
-    TIM1->CCR1 = (pwm*(PWM_PERIOD-1))/MOTOR_SPEED_MAX;
+    gpioStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_11;
+    gpioStructure.GPIO_Mode = GPIO_Mode_AF;
+    gpioStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOE, &gpioStructure);
 */
+    //terminal << "TIM1 init\n";
+
+    //init timer
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+
+    timerInitStructure.TIM_Prescaler        = PWM_PRESCALER;
+    timerInitStructure.TIM_CounterMode      = TIM_CounterMode_Up;
+    timerInitStructure.TIM_Period           = PWM_PERIOD;
+    timerInitStructure.TIM_ClockDivision    = TIM_CKD_DIV2;
+    timerInitStructure.TIM_RepetitionCounter = 0;
+
+    TIM_TimeBaseInit(TIM1, &timerInitStructure);
+    TIM_Cmd(TIM1, ENABLE);
+
+
+
+
+    outputChannelInit.TIM_OCMode        = TIM_OCMode_PWM1;
+    outputChannelInit.TIM_Pulse         = 0;
+    outputChannelInit.TIM_OutputState   = TIM_OutputState_Enable;
+    outputChannelInit.TIM_OutputNState  = 0;
+    outputChannelInit.TIM_OCPolarity    = TIM_OCPolarity_High;
+    outputChannelInit.TIM_OCNPolarity   = 0;
+    outputChannelInit.TIM_OCIdleState   = 0;
+    outputChannelInit.TIM_OCNIdleState  = 0;
+
+    //terminal << "OC3 init\n";
+
+    //pin PE13 config, OC3
+    TIM_OC3Init(TIM1, &outputChannelInit);
+    TIM_OC3PreloadConfig(TIM1, TIM_OCPreload_Enable);
+//    GPIO_PinAFConfig(GPIOE, GPIO_PinSource13, 1);
+
+    //terminal << "OC2 init\n";
+    //pin PE11 config, OC2
+    TIM_OC2Init(TIM1, &outputChannelInit);
+    TIM_OC2PreloadConfig(TIM1, TIM_OCPreload_Enable);
+//    GPIO_PinAFConfig(GPIOE, GPIO_PinSource11, 1);
+
+    //terminal << "TIM1 enable\n";
+    TIM_CtrlPWMOutputs(TIM1, ENABLE);
+
+//    terminal << "pwm = 0\n";
+
+    run_left(0);
+    run_right(0);
+
+//    terminal << "MOTOR init done\n";
 }
 
-
-void Motor::pwm_init()
-{
-  //alternate function
-  pwm_a_left.set_mode(GPIO_MODE_AF);
-  pwm_b_right.set_mode(GPIO_MODE_AF);
-
-  //connect pins to timer 1
-  pwm_a_left.set_af(0x01);
-  pwm_b_right.set_af(0x01);
-
-
-  RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;  //timer 1 clock enable
-
-  TIM1->CR1 = 0x00;                    //TIM_CounterMode_Up
-  TIM1->ARR = PWM_PERIOD;              //set period
-  TIM1->PSC = 2;                       //set the prescaler value
-
-  TIM1->RCR = 0;  //repetition counter
-  TIM1->EGR = 1;  //generate update event to reload
-
-
-  TIM1->CCR1 = 0;
-  TIM1->CCR2 = 0;
-
-  TIM1->CR2 = 0x0100;     //  TIM_OCIdleState_Set
-  TIM1->CCMR1 = 0x00070 | (0x00070<<8);  //  TIM_OCMode_PWM2
-
-  //TIM_OCPolarity_Low, TIM_OutputState_Enable, TIM_OCNPolarity_High, TIM_OutputNState_Enable
-  unsigned int tmp = 0x0002 | 0x0001 | 0x0000 | 0x0004;
-  TIM1->CCER = tmp | (tmp <<4);
-
-  //enable timer 1
-  TIM1->CR1 |= TIM_CR1_CEN;
-
-  //enable pwm output
-  TIM1->BDTR |= TIM_BDTR_MOE;
-}
 
 
 void Motor::run_left(int pwm)
 {
     //check way of motor
 
-    if (pwm == 0)
+    if (pwm > 0)
     {
+        //forward
         pwm_a_left = 0;
-        pwm_b_left = 0;
     }
     else
-    if (pwm < 0)
     {
-        //left backward
+        //backward
         pwm_a_left = 1;
-        pwm_b_left = 0;
-
+        pwm = -pwm;
         pwm = MOTOR_SPEED_MAX - pwm;
-    }
-    else
-    {
-        //left forward
-        pwm_a_left = 0;
-        pwm_b_left = 1;
     }
 
     //saturation
     if (pwm > MOTOR_SPEED_MAX)
         pwm = MOTOR_SPEED_MAX;
 
-    //TIM1->CCR2 = (pwm*(PWM_PERIOD-1))/MOTOR_SPEED_MAX;
+    TIM1->CCR3 = (pwm*(PWM_PERIOD-1))/MOTOR_SPEED_MAX;
 }
 
 void Motor::run_right(int pwm)
 {
-    //check way of motor
-
-    if (pwm == 0)
+    if (pwm > 0)
     {
-        pwm_a_right = 0;
-        pwm_b_right = 0;
-    }
-    else
-    if (pwm < 0)
-    {
-        //left backward
-        pwm_a_right = 0;
-        pwm_b_right = 1;
-
+        pwm_a_right = 1;
         pwm = MOTOR_SPEED_MAX - pwm;
     }
     else
     {
-        //right forward
-        pwm_a_right = 1;
-        pwm_b_right = 0;
+        pwm_a_right = 0;
+        pwm = -pwm;
     }
 
     //saturation
     if (pwm > MOTOR_SPEED_MAX)
         pwm = MOTOR_SPEED_MAX;
 
-    //TIM1->CCR2 = (pwm*(PWM_PERIOD-1))/MOTOR_SPEED_MAX;
+    TIM1->CCR2 = (pwm*(PWM_PERIOD-1))/MOTOR_SPEED_MAX;
 }
