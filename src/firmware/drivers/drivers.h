@@ -29,6 +29,7 @@ class Drivers
 
         void test_imu_sensor(int count = -1);
         void test_line_sensor(int count = -1);
+        void test_ir_sensor(int count = -1);
         void test_distance_sensor(int count = -1);
         void test_encoder_sensor(int count = -1);
 

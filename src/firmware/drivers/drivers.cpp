@@ -154,6 +154,44 @@ void Drivers::test_line_sensor(int count)
   line_sensor.off();
 }
 
+void Drivers::test_ir_sensor(int count)
+{
+    terminal << "\ntest_ir_sensor\n";
+
+    bool run = true;
+
+    Array<int, LINE_SENSOR_COUNT> result;
+
+
+    line_sensor.on();
+    while (run)
+    {
+        if (line_sensor.ready())
+        {
+            result = line_sensor.adc_result;
+
+            if (count > 0)
+                count--;
+            if (count == 0)
+                run = false;
+
+            led = 1;
+
+            for (unsigned int i = 0; i < result.size(); i++)
+            {
+                terminal << result[i] << " ";
+            }
+
+            terminal << "\n";
+
+            led = 0;
+
+            timer.delay_ms(200);
+      }
+    }
+    line_sensor.off();
+}
+
 
 void Drivers::test_distance_sensor(int count)
 {
@@ -290,7 +328,7 @@ void Drivers::test_line_follower()
   float speed      = 0.0;
   float speed_max  = 0.4;
   float speed_rise = 0.001;
- 
+
 
 
   while (1)
