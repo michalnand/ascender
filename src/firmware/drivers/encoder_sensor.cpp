@@ -8,7 +8,7 @@ extern "C" {
 
 volatile long int g_left_encoder, g_right_encoder;
 
-
+/*
 void EXTI9_5_IRQHandler(void)
 {
     unsigned int tmp = GPIOC->IDR;
@@ -48,7 +48,7 @@ void EXTI4_IRQHandler()
 
     EXTI_ClearITPendingBit(EXTI_Line4);
 }
-
+*/
 #ifdef __cplusplus
 }
 #endif
@@ -70,18 +70,15 @@ void EncoderSensor::init()
     g_left_encoder    = 0;
     g_right_encoder   = 0;
 
+    /*
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-
-
     {
         GPIO_InitTypeDef GPIO_InitStruct;
         EXTI_InitTypeDef EXTI_InitStruct;
         NVIC_InitTypeDef NVIC_InitStruct;
 
-
-        /* Set pin as input */
         GPIO_InitStruct.GPIO_Mode   = GPIO_Mode_IN;
         GPIO_InitStruct.GPIO_OType  = GPIO_OType_PP;
         GPIO_InitStruct.GPIO_Pin    = GPIO_Pin_6;
@@ -89,41 +86,28 @@ void EncoderSensor::init()
         GPIO_InitStruct.GPIO_Speed  = GPIO_Speed_100MHz;
         GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-        /* Tell system that you will use PC6 for EXTI_PinSource6 */
         SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, EXTI_PinSource6);
 
-        /* PC6 is connected to EXTI_Line6 */
         EXTI_InitStruct.EXTI_Line = EXTI_Line6;
-        /* Enable interrupt */
         EXTI_InitStruct.EXTI_LineCmd = ENABLE;
-        /* Interrupt mode */
         EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
-        /* Triggers on rising and falling edge */
         EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-        /* Add to EXTI */
         EXTI_Init(&EXTI_InitStruct);
 
-        /* Add IRQ vector to NVIC */
-        /* PC6 is connected to EXTI_Line6, which has EXTI9_5_IRQn vector */
         NVIC_InitStruct.NVIC_IRQChannel = EXTI9_5_IRQn;
-        /* Set priority */
         NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0x00;
-        /* Set sub priority */
         NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0x01;
-        /* Enable interrupt */
         NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
-        /* Add to NVIC */
         NVIC_Init(&NVIC_InitStruct);
     }
+    */
 
-
+    /*
     {
         GPIO_InitTypeDef GPIO_InitStruct;
         EXTI_InitTypeDef EXTI_InitStruct;
         NVIC_InitTypeDef NVIC_InitStruct;
 
-
-        /* Set pin as input */
         GPIO_InitStruct.GPIO_Mode   = GPIO_Mode_IN;
         GPIO_InitStruct.GPIO_OType  = GPIO_OType_PP;
         GPIO_InitStruct.GPIO_Pin    = GPIO_Pin_4;
@@ -131,33 +115,21 @@ void EncoderSensor::init()
         GPIO_InitStruct.GPIO_Speed  = GPIO_Speed_100MHz;
         GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-        /* Tell system that you will use PB4 for EXTI_PinSource4 */
         SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource4);
 
-        /* PB4 is connected to EXTI_Line4 */
         EXTI_InitStruct.EXTI_Line = EXTI_Line4;
-        /* Enable interrupt */
         EXTI_InitStruct.EXTI_LineCmd = ENABLE;
-        /* Interrupt mode */
         EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
-        /* Triggers on rising and falling edge */
         EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-        /* Add to EXTI */
         EXTI_Init(&EXTI_InitStruct);
 
-        /* Add IRQ vector to NVIC */
-        /* PB4 is connected to EXTI_Line6, which has EXTI9_5_IRQn vector */
         NVIC_InitStruct.NVIC_IRQChannel = EXTI4_IRQn;
-        /* Set priority */
         NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0x00;
-        /* Set sub priority */
         NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0x01;
-        /* Enable interrupt */
         NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
-        /* Add to NVIC */ 
         NVIC_Init(&NVIC_InitStruct);
     }
-
+    */
 
     /*
     //syscfg clock enable
@@ -190,19 +162,14 @@ void EncoderSensor::init()
     HAL_NVIC_SetPriority(EXTI4_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(EXTI4_IRQn);
     */
-
-/*
-__HAL_GPIO_EXTI_CLEAR_FLAG(GPIO_PIN_6);
-__HAL_GPIO_EXTI_CLEAR_FLAG(GPIO_PIN_4);
-*/
 }
 
 
 int EncoderSensor::get_left()
 {
-  __disable_irq();
+  //__disable_irq();
   int tmp = g_left_encoder;
-  __enable_irq();
+  //__enable_irq();
 
   int res = (tmp*WHEEL_CIRCUMFERENCE)/PULSES_PER_ROTATION;
   return res;
@@ -210,9 +177,9 @@ int EncoderSensor::get_left()
 
 int EncoderSensor::get_right()
 {
-  __disable_irq();
+  //__disable_irq();
   int tmp = g_right_encoder;
-  __enable_irq();
+  //__enable_irq();
 
   int res = (tmp*WHEEL_CIRCUMFERENCE)/PULSES_PER_ROTATION;
   return res;

@@ -5,6 +5,9 @@
 
 #include <motor.h>
 
+#include <lsm_test.h>
+#include <i2c.h>
+
 int main()
 {
     core_SystemClock_Config_216();
@@ -19,6 +22,36 @@ int main()
     key.read();
     bl.set_mode(BL_MODE_FLASHING_FAST);
 
+    terminal << "run\n";
+
+
+    TI2C<TGPIOC, 7, 6, 200> i2c_encoder_left;
+    TI2C<TGPIOB, 5, 4, 200> i2c_encoder_right;
+
+    i2c_encoder_left.init();
+    i2c_encoder_right.init();
+
+
+    terminal << "encoder i2c init done\n";
+
+
+    LSM303D encoder_left(i2c_encoder_left);
+    LSM303D encoder_right(i2c_encoder_right);
+
+
+    terminal << "starting test\n";
+
+    while (1)
+    {
+        encoder_left.test();
+        encoder_right.test();
+
+        terminal << "\n\n\n";
+
+        timer.delay_ms(500);
+    }
+
+    //drivers.test_imu_sensor();
 
     //drivers.test_motor_speed_feedback();
     //drivers.test_motor_gyro_feedback();

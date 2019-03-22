@@ -61,7 +61,6 @@ int Drivers::init()
   encoder_sensor.init();
   terminal << "encoder sensor init done\n";
 
-
   motor_controll.init();
   terminal << "motor controll init done\n";
 

@@ -8,7 +8,7 @@ class I2C_Interface
 
     public:
       I2C_Interface();
-      ~I2C_Interface();
+      virtual ~I2C_Interface();
 
       virtual void start() { }
       virtual void stop() { }
