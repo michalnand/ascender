@@ -43,16 +43,8 @@ LSM303D::~LSM303D()
 
 }
 
-void LSM303D::test()
+void LSM303D::read()
 {
-    unsigned char who_am_i_result = this->i2c->read_reg(LSM303D_I2C_ADDRESS, WHO_AM_I); //61 OK
-
-    terminal << "who_am_i_result " << who_am_i_result << "\n";
-
-    int16_t x = 0;
-    int16_t y = 0;
-    int16_t z = 0;
-
     i2c->start();
     i2c->write(LSM303D_I2C_ADDRESS);
     i2c->write(OUT_X_L_M);
@@ -60,22 +52,40 @@ void LSM303D::test()
     i2c->start();
     i2c->write(LSM303D_I2C_ADDRESS|0x01); // slave address, read command
 
-    x = ((int16_t)i2c->read(1)) << 8;
-    x|= ((int16_t)i2c->read(1)) << 0;
+    int16_t x, y, z;
+    
+    x = ((int16_t)i2c->read(1)) << 0;
+    x|= ((int16_t)i2c->read(1)) << 8;
 
-    y = ((int16_t)i2c->read(1)) << 8;
-    y|= ((int16_t)i2c->read(1)) << 0;
+    y = ((int16_t)i2c->read(1)) << 0;
+    y|= ((int16_t)i2c->read(1)) << 8;
 
-    z = ((int16_t)i2c->read(1)) << 8;
-    z|= ((int16_t)i2c->read(0)) << 0;
+    z = ((int16_t)i2c->read(1)) << 0;
+    z|= ((int16_t)i2c->read(0)) << 8;
 
     i2c->stop();
 
     result.x = x;
     result.y = y;
     result.z = z;
+}
+
+void LSM303D::test()
+{
+    unsigned char who_am_i_result = this->i2c->read_reg(LSM303D_I2C_ADDRESS, WHO_AM_I); //61 OK
+
+    terminal << "who_am_i_result " << who_am_i_result << "\n";
+
+    read();
 
     terminal << "[" << result.x << " " << result.y << " " << result.z << "]\n";
+}
+
+int LSM303D::get_orientation()
+{
+    if (result.z > 0)
+        return 1;
+    return -1;
 }
 
 sLSM303_3VECT LSM303D::get()

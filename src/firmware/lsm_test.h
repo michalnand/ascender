@@ -20,7 +20,10 @@ class LSM303D
         LSM303D(I2C_Interface &i2c_);
         virtual ~LSM303D();
 
+        void read();
         void test();
+
+        int get_orientation();
 
         sLSM303_3VECT get();
 };

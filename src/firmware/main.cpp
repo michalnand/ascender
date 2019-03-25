@@ -41,14 +41,21 @@ int main()
 
     terminal << "starting test\n";
 
-    while (1)
+    while (1) 
     {
+        encoder_left.read();
+        encoder_right.read();
+        /*
         encoder_left.test();
         encoder_right.test();
 
         terminal << "\n\n\n";
 
         timer.delay_ms(500);
+        */
+
+        terminal << encoder_left.get_orientation() << " " << encoder_right.get_orientation() << "\n";
+        timer.delay_ms(50);
     }
 
     //drivers.test_imu_sensor();
